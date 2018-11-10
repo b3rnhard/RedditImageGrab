@@ -17,8 +17,12 @@ from redditdownload import redditdownload
 FILE_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files')
 
 
-def get_mock_items():
-    """get mock items."""
+def get_mock_items(*args, **kwargs):
+    """get mock items.
+    :type kwargs: dict
+    """
+    if kwargs["previd"]:
+        return []
     items_json_path = os.path.join(FILE_FOLDER, 'items.json')
     with open(items_json_path) as ff:
         mock_items = json.load(ff)
@@ -37,7 +41,7 @@ class TestMainMethod(unittest.TestCase):
             redditdownload.main()
 
     @patch('redditdownload.redditdownload.download_from_url')
-    @patch('redditdownload.redditdownload.getitems', side_effect=[get_mock_items(),{}])
+    @patch('redditdownload.redditdownload.getitems', side_effect=get_mock_items)
     def test_update_flag(self, mock_get_items, mock_download_func):
         """test update flag.
         
@@ -60,4 +64,5 @@ class TestMainMethod(unittest.TestCase):
 
             # assert the call count
             assert mock_get_items.call_count == 2
-            assert mock_download_func.call_count == 2
+            # one further download attempt is made, stopped by FileExistsException
+            assert mock_download_func.call_count == 3
