@@ -449,9 +449,16 @@ def main():
                         DOWNLOADED += 1
                         FILECOUNT += 1
 
+                    except FileExistsException,e:
+                        print ('    %s' % (e))
+                        ERRORS += 1
+                        if ARGS.update:
+                            print ('    Update complete, exiting.')
+                            FINISHED = True
+                            break
+                        ERRORS += 1
                     except Exception as exc:
                         print('    %s' % (exc,))
-                        ERRORS += 1
 
                     if ARGS.num and DOWNLOADED >= ARGS.num:
                         FINISHED = True
